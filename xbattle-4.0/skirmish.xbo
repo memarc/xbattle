@@ -1,0 +1,16 @@
+-guns 5
+-para 5
+-horizon
+-decay 2
+-square 32
+-board 24
+-sea 8
+-rbases 5
+-fill 4
+-dig 4
+-scuttle
+-build 8
+-store
+-reserve
+-repeat
+-march 4

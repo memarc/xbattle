@@ -1,0 +1,830 @@
+.TH XBATTLE 4.0 "Aug 1992"
+.SH NAME
+xbattle \- a multi-user battle strategy game
+.SH SYNOPSIS
+  xbattle [-<color> <display>...] [-<option> <argument>...]
+.SH
+
+Assign a  team color and display  to  each player, and  any  number of
+options with argument where  required.   <color> can be  a  monochrome
+tone, -black -white -dark -light, or a color, -red -green -blue -cyan
+-magenta -yellow;  <display> is the  name  of  the x display  for each
+player.  Command line arguments can be  supplied in  any order.  For a
+quick introduction, go straight to the EXAMPLES section below.   Also,
+see  the tutorials  supplied  with   the game, which  are "csh"  shell
+scripts that start up example games.
+
+.SH OPTIONS 
+.nf
+	[ -options  [<options file>]]
+	[ -bases    <number of bases> 4 teams max.]
+	[ -rbases   <number of randomly placed bases>]
+	[ -armies   <size of initial armies> 4 teams max.]
+	[ -militia  <density of random militia [1-10]>]
+	[ -towns    <density of towns [1-10]>]
+	[ -repeat   no argument- allows command repeat]
+	[ -bound    no argument- allows multiple commands]
+	[ -march    <delay between marches>]
+	[ -erode    <time before erosion>]
+	[ -farms    <rate of universal troop production [1-10]>]
+	[ -decay    <rate of troop decay [1-10]>]
+	[ -fight    <firepower for attack [1-10]>]
+	[ -disrupt  no argument- stop movement under fire]
+	[ -attack   no argument- attack synchronously with "a" key
+	[ -guns     <range of artillery [1-10]>]
+	[ -para     <range of paratroops [1-10]>]
+	[ -hills    <steepness of hills [1-10]>]
+	[ -forest   <thickness of forest [1-10]>]
+	[ -sea      <amount of water on gameboard [1-10]>]
+	[ -wrap     no argument- sets wrap-around mode]
+	[ -seed     <random seed for hills, forest & militia>]
+	[ -horizon  [<view range of enemy troops>]]
+	[ -hidden   no argument- hides enemy command vectors]
+	[ -map      no argument- map features as they appear]
+	[ -basemap  no argument- map bases/towns as with terrain]
+	[ -localmap no argument- map only local area]
+	[ -dig      <cost of terrain digging>]
+	[ -fill     <cost of terrain filling>]
+	[ -build    <cost of base in full troopsquares>]
+	[ -scuttle  no argument- allow base destruction]
+	[ -nogrid   no argument- does not display a grid]
+	[ -speed    <game speed [1-10]>]
+	[ -square   <game square size in pixels>]
+	[ -board    <game board size in squares>]
+	[ -manpos   no argument- allows manual board placement]
+	[ -area	    no argument- display troop strength by area
+	[ -hex	    no argument- use hexagonal game squares
+	[ -move     <speed of troop movement [1-10]>]
+	[ -reserve  no argument- allow reserves ]
+	[ -digin    <dig-in factor [1-10]>]
+	[ -store    [<save file>]]
+	[ -replay   [<save file>]]
+	[ -edit	    [<map file>]]
+	[ -load	    [<map file]]
+	
+.fi
+.SH RUN-TIME COMMAND SUMMARY
+
+.SH COMMANDS IN GAMEBOARD
+ LEFT MOUSE:          toggle command vector to move troops
+ MIDDLE MOUSE:	      clear all and set new command vector
+ RIGHT MOUSE:	      repeat previous command (with -repeat)
+ SHIFT-LEFT MOUSE:    march (with -march) fork march (with -hex)
+ SHIFT-MIDDLE MOUSE:  force march (with -march) fork march (with -hex)
+ SHIFT-RIGHT MOUSE:   paratroops (with -para)
+ CONTROL-RIGHT MOUSE: artillery (with -guns)
+ ctrl-'s':	      pause game
+ ctrl-'q':	      resume game
+ ctrl-'p':	      save game state to map file
+ 'a':		      attack enemy square (-attack)
+ 'b':		      build base (-build)
+ 's':		      scuttle base (-scuttle)
+ 'f':		      fill terrain (-fill)
+ 'd':		      dig terrain (-dig)
+ 'p':		      paratroops (with -para)
+ 'g':		      artillery (with -guns)
+ 'z':		      cancel all movement
+ {'0'-'9'}:	      reserve (-reserve)
+
+.SH COMMANDS IN TEXT AREA
+ CONTROL-c or CONTROL-q: quit the game
+ CONTROL-w: quit game but watch others play on
+ CONTROL-g: ring bell on all game displays
+ ANY OTHER CHARACTER: append to message string
+
+.SH DESCRIPTION
+
+xbattle  is a   concurrent  multi-player battle  strategy   game  that
+captures the dynamics  of a  wide  range of military  situations.  The
+game board is a matrix of game squares (or hexagons- see "-hex" option
+below) which can be  occupied by troops  of various colors  or shades.
+The number of troops in a square is indicated by the size of a colored
+troop square (or  circle, with "-hex") within the  game   square.  The
+troops are commanded by clicking the mouse near the edge of the square
+in the direction that the movement is to take place.  The command will
+be acknowledged by the appearance of a command vector, and thereafter,
+in each  update cycle, a certain  proportion  of  the troops will move
+from the source  square  to the destination  square until  the  source
+square is exhausted.  Command vectors can be set in several directions
+at  once, in which case  the movement is   divided evenly between  the
+vector directions, and the  command  remains  active until  cancelled.
+Thus a  trail of squares can be  set up as  a supply   line that  will
+deliver troops steadily at  its endpoint.   The command vector remains
+active even if the  number of troops  in that square is zero, although
+the command vector will then be displayed at half length.  The game is
+concurrent, so that  commands  are given continuously  by  all players
+without waiting for  turns.  Different  combinations of options create
+radically different games, see EXAMPLES below.
+
+.SH Team Colors and Displays (-<color>)
+
+The game is started from one display, and each player must play from a
+separate   display, players being  assigned  to  a  color team by  the
+command  line   option "-<color>   <display>".  The parameter  <color>
+determines the color of the troops of that team, which can be either a
+monochrome tone like black, white, dark,  light, or a true  color like
+red, green, blue,  cyan, yellow and  magenta, although the true colors
+will appear on a monochrome monitor  as either black  or white with an
+identifying character  in each troop  square which is the first letter
+of the  color  name.  So  for instance,   the team color  "-red" would
+appear on  a monochrome monitor as  black with a  letter  "R"   in the
+middle of  each troop square.  A number  of  people can be assigned to
+the same team   by repeating the   color for different   displays, for
+example "-red  display1 -red  display2", and  each member of  the team
+will  be  able  to  command any troops  of  that team.   The <display>
+argument designates the name of the display on which the  team of that
+color is playing, so each player must be given a  color and a display.
+Display  names can be  found with the unix command  "who", which  will
+list display names for users in the last column like (cnsxk:0.0).  The
+system console is always designated unix:0.0.  The display name can be
+modified  for remote  games,  for   example the terminal  cnsxk:0.0 on
+park.bu.edu   (email   address of  machine    "park")   is  designated
+cnsxk.bu.edu:0.0 .   Xbattle recognizes  :0.0  as the default  (screen
+zero on the display),  so  the  :0.0 may  be omitted  from the display
+name.   Xbattle also recognizes a  special  display name  "me",  which
+means the display  from  which  the program is started.   When playing
+between color and monochrome displays the colors can be specified more
+exactly  by  concatenating  a color name  with  a monochrome name, for
+example "-redwhite" (color first),  which would  display  that team as
+red  on color monitors and white  on monochrome monitors.  All command
+line  flags and  arguments for the  game can be  given in any order as
+long as the argument directly follows its flag, and most arguments are
+scaled to range from 1 to 10, with 5  being the  default value.  It is
+also  possible  to set  different  game  parameters  for the different
+displays, so that the game can be  biased to  favor a less experienced
+player- see BIASED GAMES below.
+
+.SH OPTIONS (-options)
+
+A large variety of game options are available to define the parameters
+of the game.  In essence, xbattle  is  many  thousands of games rolled
+into one.  The options can be presented in any order, and may be typed
+in with  the command line, or they  can be stored  in an  options file
+(default filename = default.xbo),  or some can be  stored   and others
+added to the command line.  The format for the options file is exactly
+the same as the format  for the command  line except that in the  file
+each option (plus argument, where applicable) is placed  on a separate
+line.  So, for example, the game...
+
+  xbattle -black me -white cnsxk:0.0 -armies 4 -farms 5 -attack
+
+could also be played with the command...
+
+  xbattle -black me -white cnsxk:0.0 -options myoptions.xbo
+
+where the file myoptions.xbo consists of the lines...
+
+  -armies 4
+  -farms 5
+  -attack
+
+The only command line entries that can NOT be  included in the options
+file are the team color and display arguments.
+
+.SH Troops (-bases, -rbases, -armies, -militia)
+
+Initial troop allocation  is controlled  by several  command  options,
+including -bases  <n>, -rbases  <n>,  -armies  <n> and   -militia <n>.
+Armies and  militia are  troops on the  gameboard, whereas bases which
+are indicated by circles on the gameboard,  provide a steady supply of
+troops.  The   -bases option  allocates   <n>  bases  to each    team,
+symmetrically arranged on the game board, whereas -rbases <n> arranges
+them  randomly   (which works  well  with  the  -horizon option).  The
+-armies option allocates <n> armies (full troop squares) symmetrically
+arrayed, whereas -militia <n> scatters militia of random strengths to
+random locations, with a probabilistic density  of  <n>.  At least one
+of these four  options is required  to provide initial troops  for the
+game, and they  may be  used in combination.   The -bases  and -armies
+options will only work for four or less teams.
+
+.SH Resupply (-towns, -farms, -decay)
+
+The bases created by the -bases or -rbases, produce a steady supply of
+fresh troops.  The bases can be occupied by an  opposing team, and the
+troops produced  by such bases are always  the  color of the occupying
+force.  The capture of all bases thus  becomes the strategic objective
+of the  game.  This arrangement  simulates desert warfare, as long and
+tenuous  supply lines  develop between the  base and the battle areas.
+Another  form of resupply  is provided by  the  command option "-towns
+<n>".  This  produces a  number of smaller  unoccupied  supply sources
+scattered randomly over the game board at  a density determined by the
+argument <n>, and with random  rates of troop production, indicated by
+the radius of the circle on the game board.  Towns must be occupied by
+a team to begin producing troops.  This option  simulates yet a larger
+scale of operation as the  combatants battle to occupy  the towns.   A
+more distributed  form  of resupply  is evoked  by the command  option
+"-farms <n>" whereby  every   square of the   game  board will produce
+troops   as soon as   it is occupied,   at a rate  proportional to the
+argument  <n>,  and the strategic  objective becomes the occupation of
+the largest areas  of the  gameboard.  This  option  simulates  a  yet
+larger scale of operation and requires complex management of resources
+to concentrate  the distributed  resources  and deliver  them   to the
+battle front.  In  large  scale  scenarios additional  realism may  be
+added by  using the -decay  option whereby the  troop  strength in all
+troop squares  decays constantly  in proportion  to  the value  of the
+decay argument.  This reflects the fact that armies constantly consume
+resources even  while they are  idle, and  an   army without  constant
+resupply  will wither  away.  With the  decay option,  a set of bases,
+towns or farms can only support armies of limited size, and the armies
+will  dynamically grow or shrink until   they reach that  size.  Since
+this number  includes the troops  that make  up the  supply  line, the
+fighting power  of an  army diminishes  with the  length of the supply
+line.  The default  decay value is   zero, i.e.   no   decay.  All the
+resupply options can be used in any combination.
+
+.SH Interactive commands (mouse and keyboard)
+
+Movement  commands are  performed with    the left and middle    mouse
+buttons, to direct the  command vector.  A  click in the center of the
+game square clears all command vectors; a  click near an edge sets the
+vector in  that direction, and  a  click near a  corner  sets the  two
+adjacent  vectors.   The left mouse toggles  command vectors while the
+middle   mouse clears existing  vectors  and   sets a  new vector  (An
+alternative command   system  is  available,  see  COMPILATION OPTIONS
+below).  The right mouse is used to repeat the last used command (with
+-repeat option).  The keyboard is interpreted differently depending on
+whether the mouse is positioned on  the gameboard or  on the text area
+below.  On the gameboard,  the the keys control-s and  control-q pause
+and  resume the game respectively.  The  'z' key  cancels  all command
+vectors to the square holding the  cursor (like a  click in the center
+of the square).   The key control-p  saves the current  game to  a map
+file (see Saving Game State commands below).  There are also a variety
+of   keyboard commands available  with   different options, to control
+special functions on the gameboard.  These keystrokes are described in
+detail with the description of  the  appropriate  options (see  -guns,
+-para, -build, -scuttle,  -fill, -dig, -reserve).   In the  text  area
+below the keyboard,   the keys control-c and  control-q  both exit the
+player from the game, although the game continues among  the remaining
+players until they  also quit, and  the key  control-w also exits  the
+player, but allows him to continue watching  as the other players play
+on.  The  rest of  the keyboard  is   used for  communication  between
+participants  through text   lines.  This is  especially useful   when
+playing between remote sites- each team has its own text line, and the
+color of  the text matches the color  of the  team.  The control-g key
+rings the bell on all displays, which can be used to draw attention to
+a new message.
+
+.SH Enhanced movement commands (-repeat, -bound, -march, -erode)
+
+With the option "-repeat"  you can repeat  the last command  using the
+right mouse.   If for example your  last command to a square consisted
+of a "move up" command  by  clicking near the top  edge of the square,
+you can now command other squares to also move up by clicking in those
+squares with the right mouse.  That way you no longer have to aim your
+click exactly at  the  top side  of  those squares, but can  click the
+right mouse  anywhere in that  square, which saves time.  This command
+is supported in biased games- i.e.  it can be set for one team but not
+another.  Commands can be made to apply to  more than one  square with
+the option "-bound". This is achieved by defining a bounding rectangle
+within which the command is valid.  For  instance,  to command a block
+of squares to  all move up  simultaneously,  you place your mouse near
+the  top edge of a  square (may be  unoccupied, or enemy occupied) and
+press the button (setting the command "go up", then you drag the mouse
+to another game square  where  you release  the button.  The start and
+end squares  of  the mouse  drag  define  the opposite   corners  of a
+rectangle within which  all the game  squares occupied  by your troops
+receive the command "go up".  With the option "-march <n>", troops may
+be  commanded to  march in a  particular direction and  to continue in
+that direction without further commands.  March commands are activated
+with  shift left  or shift  middle mouse button.  For example,  if you
+click near the  top edge of  a  square  with  "shift left mouse",  the
+troops will begin to march up, and on arrival  in the next square they
+will transfer the  march  command  to  that square so  that they  will
+continue  marching upwards  to the  next   square,  and so forth. If a
+marching  column  encounters   hostile forces  the   march command  is
+cancelled and  the   column stops.   To prevent marching  columns from
+travelling  much  faster than  manually  commanded troops,  the  march
+argument <n> defines the number of game update  cycles that the troops
+must wait in each new square before marching on to the next square, so
+that "-march 1" will result in a fast  march, whereas "-march 10" will
+be slow.   The  "march command" is  indicated on the  game board  by a
+double command  vector (looks  like  an "="  sign)  in the appropriate
+direction, and  the march command  is always passed on  to the head of
+the  column.  March   commands may be set  in   squares that  are  NOT
+occupied by your troops, and will be activated  when a marching column
+arrives in that square.  This allows you  to define turns  in the path
+of the marching column to avoid obstacles.  A "stop march" command may
+also be set to program the  marching column  to stop  in  that square.
+This is achieved by clicking "shift left  mouse" in the center of that
+square, and will be  displayed as an  empty box in  that square.  When
+set  with  the left   mouse, the  march vector   is  overwritten on to
+existing command  vectors encountered in the march  path, whereas when
+set  with  the  middle mouse   the march  vector  removes and replaces
+existing command vectors.  March commands are cancelled by clicking on
+the  square without  the shift  key.   March  commands  may be  set in
+squares that are  beyond the visible  horizon in the  normal way , and
+will appear as a double vector in  that square so long  as that square
+is not a "sea" square.  If the target  square contains invisible enemy
+troops,  then the march  command vectors will  appear  initially,  but
+disappear again as soon as the enemy  is approached close enough to be
+visible.  March commands are specific to the team that sets  them, and
+different march  commands may be  set by different   teams in the same
+game square.  The double command vectors are visible  only to the team
+that sets  them.  The  command line  option "erode   <n>"   limits the
+longevity of game squares that belong to you but in which there are no
+troops.  Normally,  a  passing column of  troops  leaves   behind it a
+"supply line" of command vectors   that can  be  used any time in  the
+future to send further troops along the same path, and  the game board
+eventually becomes cluttered with such supply lines, many of which are
+no longer active.  With  "-erode <n>"  such  disused supply lines will
+begin  to erode away  stochastically  with time  10*<n>  update cycles
+after the time of the last occupation, so that "-erode 1" provides for
+fast erosion, whereas "-erode 10" is slow.
+
+.SH Combat (-fight, -disrupt, -attack)
+
+Whenever  troops  of different colors occupy  the  same game square, a
+battle ensues, indicated by concentric squares of  the two colors, and
+a  "crossed swords" (X) symbol.  During  battle, one or both sides can
+incur  losses   according  to     a random nonlinear     function that
+disproportionately favors the  more numerous troops.  The steepness of
+the nonlinearity, i.e. the advantage given to the more  numerous side,
+is controlled by  the  -fight parameter.  A  small  value will produce
+lengthy drawn out battles which favor a  defensive strategy, whereas a
+large  value produces quick decisive battles  where the random element
+is more  significant,  favoring an  offensive   strategy  even against
+superior odds. In the absence of the -fight option,  the default value
+of 5 is used.  The -fight parameter is also automatically modulated by
+the game  speed  parameter (-speed) in  order to slow down  battles in
+fast games and vice versa.  Since only 1/3 of the  troops can  enter a
+square in each update cycle (with the default -move 5), attackers of a
+full  square are  always outnumbered  initially,  unless a coordinated
+attack  is launched  from  three  sides   simultaneously.   The  -move
+argument thus  has   a significant influence on   the efficacy   of an
+attack.  The -disrupt option dictates  that when a game  square  comes
+under  attack,  all its command   vectors  are immediately  cancelled,
+breaking supply lines which must be repaired by hand after the attack.
+In other  words, there can be no  movement under fire, and even  small
+forces can  be used to provide covering  fire to  "pin down"  a larger
+force,  at least until they  are counter-attacked  and eliminated.   A
+side effect of this  option  is that  when   an attacking  square   is
+counterattacked, both squares attemp to  cancel each other's movement,
+i.e.  to interrupt the attack.  The square that  is  updated next will
+prevail, cancelling the command vector of the other square.  Since the
+game squares  are updated in a  random sequence, there  is  no telling
+which square will prevail, and the commander must click  repeatedly to
+renew   the command vector in  order  to  press  home the attack under
+opposition.  This  simulates the tactical  situation where a commander
+must personally intervene to ensure  the  maximal effort is applied at
+the most critical  points of  the  battle.   The -attack  option helps
+synchronize attacks on  an enemy square from  different  flanks.  When
+the mouse  is pointed  to an enemy  troop square  and  the  "a" key is
+pressed, all friendly squares adjacent  to  it commence a simultaneous
+attack.
+
+.SH Guns and Paratroops (-guns, -para)
+
+The command option -guns <n> enables the shift-right mouse to  be used
+to control artillery, which can be shot  from any occupied gamesquare.
+The range and direction of the shot are determined by the  position of
+the click in the game square, near center for short range and near the
+edge for long  range, as modulated by  the argument <n>.   Every shell
+costs one troop from  the source square and destroys  one troop at the
+destination   square.   The fall of  shot  is indicated  by  the brief
+appearance of a little dot.  With the -horizon option the fall of shot
+may not be visible  for  long range  shots,  although invisible  enemy
+troops will be destroyed where the shell  falls.  Artillery can damage
+both friend and foe, so it must be  used with caution.  Paratroops are
+enabled  by the option   -para <n>,  and  are launched    similarly to
+artillery using control-right mouse button.   The cost of dropping one
+troop at   the destination square  is three   troops  from the  source
+square, and the drop zone is indicated  by  the  brief appearance of a
+parachute symbol.
+
+.SH Environment (-hills, -forest, -sea, -wrap, -seed, -erode)
+
+The command option -hills <n> initializes  random hills which restrict
+movement when going from low to high  elevation,  and enhance movement
+from high to  low, but do   not affect  movement  on  the  level.  The
+elevation is indicated by the shade of gray,  light  for high and dark
+for low on monochrome,  and brownish for  high and greenish for low on
+color displays.  The argument controls the amount of energy gained and
+lost on hills, i.e. the steepness.  Hills provide a tactical advantage
+when  attacking downhill.  With very steep  hills  (-hills 9) movement
+from  very low   to  very   high  elevation  (a  cliff) is   virtually
+impossible.  The command option -forest <n> initializes random forests
+which restrict movement within the forest, but do  not affect movement
+from thin to  thick forest.  On both   color and monochrome  displays,
+thick forest  is  dark, and thin is  light.  When  used in conjunction
+with hills,  the forests    thickness correlates  exactly   with  hill
+elevation.  When  transitioning from one forest  thickness to another,
+the  movement is determined by the  destination square, not the source
+square, so  that troops deployed  within  a forest but at the boundary
+have a  tactical advantage over those   deployed outside the boundary.
+The command option -sea <n>  generates randomly distributed bodies  of
+water, whose  prevalance is  determined  by  the  argument <n>.   Such
+bodies of water cannot be crossed by infantry.   A small value creates
+scattered ponds and lakes, which influences the tactical deployment of
+troops, whereas a large value creates a maze-like pattern of fjords or
+rivers which  isolate blocks of land  into islands which can   only be
+taken  by    paratroops.  On monochrome   monitors  water appears dark
+mottled grey,  and  on color  monitors it is   pale blue.  The command
+option -wrap (no arguments) allows wrap-around  on the gameboard.  The
+command  option -seed <n> allows  control  of  the random number seed,
+otherwise selected based on the  process ID and the time,  and printed
+to  the text line.   Using  the same  seed   will reproduce the   same
+configuration of hills, towns, seas and militia.
+
+.SH Modify Environment (-dig, -fill, -build, -scuttle)
+
+The command options -dig and -fill  allow run time modification of the
+terrain by digging hills down to lower elevation or filling them up to
+higher  elevation.  This  allows  the  construction  and breaching  of
+defensive  fortifications.   The cost of these  operations is one full
+troopsquare, and is accomplished by positioning the mouse on  the full
+square and striking the key  "d" for dig, and "f"  for fill.  With the
+-sea  option, -dig  <n> and -fill  <n>   should  be  supplied with  an
+argument, whereby, digging  below the lowest  elevation produces a sea
+at the cost  of <n> full  troopsquares, which  can similarly be filled
+back up again at the same cost.  The arguments for -dig and -fill must
+be the same value (the second argument given will  be applied to both)
+and  will be ignored for  digging and filling of hills.    Since it is
+impossible  to  occupy a  'sea'  square to  fill  it,  filling seas is
+accomplished by setting the command vector as if to move into the sea,
+and  then pressing "f".   For  all  other fill and dig operations  the
+troop square may not have any command vectors set.  The -build <n> and
+-scuttle options  allow  the  building and  destruction of   bases (or
+towns).  Building is expensive, and requires <n> full troop squares to
+build a complete base.  When the mouse is  positioned on  a full troop
+square and the "b" key is pressed, the troops  are exchanged for a 1/n
+fraction of a base, displayed as an arc segment.  When  the capture of
+a base by the enemy seems inevitable, it is often advisable to scuttle
+the base  to  prevent it falling  into  enemy   hands.   Scuttling  is
+performed by  positioning the mouse on  the base and  pressing the "s"
+key.  This reduces the size (and production capacity) of that  base by
+an amount proportional    to  the  number  of troops  engaged   in the
+scuttling, and a proportion  of those troops are  expended.   Usually,
+several keystrokes are  required   to complete the destruction.   When
+used in conjunction  with the -build  option, instead of  reducing the
+size of the  base,  each scuttle operation  removes  a   section  (arc
+segment) of the base proportional  to the number  of troops engaged in
+the scuttling, such  that  a full troop square  can scuttle the entire
+base with <n> keystrokes.  A  base will not  produce troops if  even a
+single segment is missing, although of course it  is less expensive to
+repair (with "b" build) a base with fewer segments missing.
+
+.SH Visibility (-horizon, -hidden, -map, -basemap, -localmap, -nogrid)
+
+The command option  -horizon <n>   restricts the view  of enemy  troop
+deployment to within <n> squares of any  friendly troops.  Horizon can
+be called with no argument, in which case the default <n> = 2 is used.
+Intelligence of  more remote   regions can be   gathered by     use of
+paratroops.   The command option   -hidden  (no  arguments)  makes the
+command vectors of  the enemy  invisible  at any  range.  The  command
+option -map is similar to -horizon except that  it restricts your view
+of geographical objects  as  well  as  enemy troops, although  it will
+"remember" any terrain that you  have seen once, as if  you had mapped
+that information.  The -basemap option maps bases and towns as it does
+the  terrain.  The option  -localmap  maps  only the local area around
+your  troops, and features  disappear  as you move   away  again.  The
+option -nogrid (no arguments) suppresses the display of  a grid on the
+game board.
+
+.SH Game Parameters (-speed, -square, -board, -manpos, -area, -hex)
+
+The -speed <n> option controls  the speed of  the update cycle, making
+for a fast or slow game.  A fast  game favors  quick reaction time and
+fast action, whereas a slow game favors  strategy and  intellect.  The
+option -square <size> allows you to set the size of the gamesquares in
+pixels, and the option -board <size> allows you to set the size of the
+game board in squares.  The option -manpos allows  you to position the
+game window manually rather than having it appear automatically at the
+upper left origin,  which  is the default.  With  the -area option the
+number of troops  in a game  square is represented by the  area of the
+troop square, rather than  by the length of the  side (or diameter for
+hex).  The -hex  option  creates  hexagonal gamesquares with  circular
+troop symbols instead of rectangular game  and troop  squares.  Troops
+are commanded  from hexagonal  squares in  the usual  way, except that
+they will move in one direction only.  In order to command movement in
+two directions simultaneously, locate the mouse near a  corner  of the
+gamehex and hold the shift key while clicking.
+
+.SH Troop Movement Parameters (-move, -reserve, -digin)
+
+In each update cycle some fraction of the troops in a game square move
+to adjacent squares  indicated by the command  vectors.    The default
+fraction   is 1/3,  so   that  in each successive  cycle,   1/3 of the
+remaining  troops  move out of the   square until it is   empty.  That
+fraction is adjusted with the -move argument, 1 for less movement, and
+10 for more movement.  The -reserve option allows the player to define
+a level  of  reserves  to remain  in  the square  despite the movement
+command.  For  instance a reserve level   of 5 would ensure  that  the
+square will  maintain a reserve  of 50% capacity, and movement  out of
+that  square  will only  occur with  troops  in  excess of the reserve
+level.   The reserve level is  set  in a  particular   game square  by
+pointing to that square with the mouse and striking  a number key, '1'
+for 10% reserves, '2'for 20% reserves, and so forth up to '9'  for 90%
+reserves.    The   option -digin  <n>  simulates  the  time and effort
+required  for troops  to dig in   and build fortifications.    This is
+achieved by reducing the  rate of flow  of troops into  a square as it
+fills up  to capacity, so that to  achieve a really  full troop square
+the men  must dig in and settle  down to accomodate the last arrivals.
+The argument <number> modulates the strength of this effect, from 1 to
+10 for small to large.  -digin is supported in the bias mode.
+
+.SH Store and Replay (-store, -replay)
+
+The  -store  <file> option allows you  to  store the  graphics drawing
+commands to a file, which can be viewed later with the  -replay <file>
+option.  When -replay  is used, all  other command options are ignored
+except the -<color> <display> options, which can  be used to  send the
+replay to other  displays.  When doing  so, only the <display> portion
+of the option is used, the <color> is ignored.  So, if you play a game
+with  many  command  line parameters  and  several  displays  with the
+argument -store <file>, after the game you can repeat the same command
+line but just change -store to -replay, and the game will  be replayed
+on  the displays  of  all  the  original  combatants.  When xbattle is
+called with  the  -replay option alone, the  default  display will  be
+"me".  If store or replay are called without a  file name, the default
+name "xbattle.xba" will be used.  In the replay, the view restrictions
+of  the -horizon option  are  deactivated, i.e.  all  enemy troops are
+visible.
+
+.SH Saving Game State Saving, Loading, and Editing (-edit, -load)
+
+The  game state can  be saved at any point  during  the game  with the
+control-p  key.   This  creates  a  file  called  "xbattle.xbt", which
+represents the state of the game board at the  time of saving.  Future
+games can be started from the saved game state with the command option
+"-load <file>"  where    <file> is  optional  if  the    file name  is
+"xbattle.xbt".  Note that most game parameters  ARE NOT STORED.   Only
+terrain features    (forest,  hills,  seas,  towns etc.)    and  troop
+deployment.  This means that if you were playing with  -farms, -decay,
+and -guns then you will have to type them in if  you want them for the
+new  game.   The terrain  and  boardsize  of  the saved map  file will
+override all terrain and boardsize arguments when loaded.  Game boards
+can be created or  modified with  the -edit function, which  is called
+with the command option "-edit <file>" where <file> is optional if the
+file name is "xbattle.xbt".  With this option, no  game is played, but
+instead, the mouse and key commands control the features of the map to
+be edited.  To edit an existing file, use "-edit <file>" and  type "l"
+when the editor comes up.  This will  load the  file named in the edit
+argument.  To save that file, type "d" and  the file will  be saved to
+the same file name.   No provision is made for  saving to a  different
+file name.  When using the edit mode,  the command line arguments must
+reflect the  number and color of  players  to be used,  and   the sea,
+forest or hills  options if they will  be  required.  For example,  to
+create a map called "mymap.xbt" with three color teams and seas, could
+use the command  "xbattle -edit mymap.xbt -sea 7  -white me -black you
+-dark you".   Note the  use of the special  display  "you", which is a
+dummy display  name  used as a place  holder   for the black  and dark
+colors.  The interactive commands are as follows:
+
+ left button:	   lower terrain by one notch (sea lowest)
+ middle button:	   raise terrain by one notch (sea lowest)
+ right button:	   toggle between lowest and mid terrain
+
+ c:	  create city (growth = 100)
+ t:	  create town (growth = 80)
+ v:	  create village (growth = 60)
+ k:	  increase size of city by 5 percent
+ j:	  decrease size of city by 5 percent
+ s:	 scuttle city - remove 36 degrees of arc
+ b:	  build city - add 36 degrees of arc
+
+ 0-9:  create troop square with troops of current color
+ [:	  decrease troop amount by 1
+ ]:	  increase troop amount by 1
+ r:	  increment current color
+ f:	  change color of existent troop square
+ d:	  dump board with name <filename>
+ l:	  load board with name <filename>
+ e:	  exit
+
+.SH BIASED GAMES
+
+The game can be biased to favor a less experienced  player, or for any
+other reason, in the following way.  In the normal syntax, the command
+line argument "-<color>"  is immediately followed  by  the "<display>"
+argument, for example "-black  me".  It is  possible to define command
+line  options that are  specific to only  one  display with the syntax
+"-<color> { <options> } <display>" where <options> refers to a list of
+command line options as before,  but is included  in  a set of  braces
+between the team color and the display (note the spaces on either side
+of the braces).  For example,
+
+  xbattle -black { -fight 10 } me -white { -fight 5 } cnsxk
+
+where black (on display "me") has the  advantage  of greater firepower
+than white  (on  display "cnsxk").    Not all options can  be  biased,
+especially options that control the global behavior of  the game, such
+as -speed  and -board.  The  options  that can  be  biased  are -bases
+-rbases -armies -militia -guns -para  -move -reserve -fight -fill -dig
+-scuttle -build -hills -forest -decay -nogrid -square -manpos -horizon
+-map -basemap -localmap -wrap.  Note also that if you are using player
+specific and global options, the global  options MUST be listed first,
+otherwise they will overwrite the play specific options.  For example,
+
+  xbattle -black { -fight 10 } me -white cnsxk -fight 5
+
+will result in  a fight  5 for both  players.  In order to achieve the
+desired result, the command line must be...
+
+  xbattle  -fight 5 -black { -fight 10 } me -white cnsxk
+
+where the local option overwrites only the black team's fight value.
+
+.SH EXTENSIONS
+
+A great deal of effort  has been made  in the design  of this  game to
+make  it as    simple  and   modular as  possible,    with   extensive
+documentation throughout the source code, in the hope that others will
+create new and exciting  variations of the  game while maintaining the
+elegance and modularity  of the original  design.  I would be grateful
+if such    variants   were sent  to  us    at   slehar@park.bu.edu and
+lesher@park.bu.edu  to be combined  into a new version reflecting  the
+best of the modifications.
+
+.SH EXAMPLES
+
+Here are some example games to give an idea of  the variability of the
+parameters.  The  first example is a  simple symmetrical  game between
+"me" in black on my own display, and  a  white opponent on the display
+"cnsxk:0.0".    The troops will  be   rapidly  exhausted in this small
+skirmish.  
+
+  xbattle -black me -white cnsxk:0.0 -armies 4
+
+The  next example  adds bases,  which  will  produce a much  prolonged
+conflict involving long supply lines between the front and  the bases,
+much like  desert warfare.  One conflict in  this  battle represents a
+skirmish   like the entire  game  of  the  previous  example.  In this
+example black is playing on the display cnsxk:0.0, and white is on the
+system console.  Note that the extension ":0.0" can be omitted.
+
+  xbattle -black cnsxk -white unix -armies 4 -bases 2
+
+The  next example  is a game  with militia scattered around initially,
+that  have  to race  to  occupy  the  towns  and  link up with   their
+compatriots before they can eliminate  the enemy.   This is a  dynamic
+scenario requiring tactical and strategic skill and fast reflexes.  In
+this example black is playing on  cnsxk:0.0  while white is playing on
+the system console of the remote machine thalamus.bu.edu.
+
+  xbattle -black cnsxk -white thalamus.bu.edu -towns 2 -militia 2 -hills 7
+
+Here is a favorite around B.U.   where the land  is broken up  by many
+bodies  of water creating isolated islands,  and view  of the enemy is
+restricted  to   nearby   squares, resulting   in   lots of surprises.
+Paratroops can be   used  for reconnaisance by  launching  them   into
+unknown  sectors, and they  must  be  used  in conjunction with  heavy
+artillery barages for airborne assaults from one landmass to the next.
+In this example the color display will show cyan and  red teams, while
+the monochrome monitor will  show white and black  teams respectively.
+The decay  option prevents huge armies from  building up at the end of
+the game, and the -store option is used to store this game to the file
+"battle.xba".
+
+  xbattle -cyanwhite thalamus:0.0 -redblack cnsxk -rbases 5 -sea 8 -guns 4 -para 4 -horizon 2 -decay 3 -store xbattle.xba
+
+Now, the previous stored game  is  replayed to the original displays by
+repeating the original command line  except that -store  is changed to
+-replay.   This  is convenient  if  you   have command   line  editing
+facilities.
+
+  xbattle -cyanwhite thalamus:0.0 -redblack cnsxk -rbases 5 -sea 8 -guns 4 -para 4 -horizon -replay xbattle.xba
+
+With -replay, all arguments are actually  ignored except the displays,
+so you could achieve exactly the same result with the simpler command
+
+  xbattle -black thalamus:0.0 -black cnsxk -replay
+
+where the   -black   argument  flags  the subsequent  argument    as a
+displayname,  but  is otherwise  ignored, i.e.  any  color  name would
+suffice.  The filename  for -replay  is omitted,  so that the  default
+file name "xbattle.xba" is used.
+
+The next example illustrates the use of the options  file, tribal.xbo,
+to set  up a  game  including,  decay, seas, farms,  militia, and many
+other options.
+
+  xbattle -black me -white thalamus -options tribal.xbo
+
+Options files can also be read in individually for the two players, as
+in the following example...
+
+  xbattle -options game.xbo -black me -white { -options weak.xbo } thalamus
+
+This results in a biased game where  both black and white  receive the
+options  defined   in game.xbo,   and  white   receives  some specific
+handicaps defined in  weak.xbo.   For example, weak.xbo could define 2
+rbases instead of 5, horizon of 1 instead of 2, and lower movement and
+fighting values.  Since these  options  overwrite existing options  in
+game.xbo, the command line  arguments   may NOT be typed in  arbitrary
+order,  because later options  overwrite  the  earlier options, so the
+global options must  be defined  before they are  overwritten  by  the
+specific options to the white team.
+
+.SH PLAYING TIPS
+
+The first thing you must learn is to  click quickly and  accurately on
+the gamesquares.  Do  not focus  your attention  on  one region of the
+board, but scan the whole board frequently.  Look  at the big picture-
+capture the towns that will  support each other,   especially  a  well
+positioned cluster of big towns.  Eliminate all enemy troops from your
+rear,  and  advance outwards, preferably  from  a corner,  with a well
+supplied front.   Travel in convoy  for speed  and  efficiency in safe
+regions, especially if you are playing  with -decay,  but fan out near
+the enemy to  provide alternate routes to  a broad front (click on the
+corner to  open  two command  vectors  simultaneously).  Avoid head-on
+assaults  on the enemy, but rather  dig in and wait  for him to attack
+while you try to turn his flank and cut off his supplies to the front,
+or concentrate at his weakest points.  Go for the jugular-  attack his
+supply sources directly.   When advancing, try  to attack weak squares
+with strong ones  to  gain maximum advantage,  and be alert for losing
+battles of your weak squares pouring into a strong enemy square, which
+will  drain your resources until you  cancel  the attack and build  up
+reserves.    If however  you  are   fighting  a delaying action,    or
+retreating under fire then you should attack strong enemy squares with
+your  weak ones   on a  broad  front to  conserve resources.  This  is
+particularly effective with the -disrupt option.  Always try to attack
+a square  from two or  more sides, and  build  up  sufficient strength
+before launching an  attack on  a  large square.  Always consider  the
+"manufacturing  capacity" of the enemy, i.e.   the  number and size of
+bases and towns,  as the one with  the most  capacity  will eventually
+win.    Watch out for  single   enemy commandos  near your unprotected
+bases, especially when playing with paratroops, and use such commandos
+to good effect against an inattentive opponent.   You  can keep a base
+fortified while  sending  troops to  the front  by  use   of recurrent
+connections, going in loops or in both directions,  or by establishing
+dead-end branches along the supply line  to accumulate local reserves.
+You should  always   have a few strong  reserves  near  your base when
+playing with  -horizon or -para, to ensure  against surprise  attacks.
+When playing with hills, a cliff is best climbed in parallel, i.e.  by
+splitting the convoy into multiple parallel  paths up the  cliff face,
+and the troops can rejoin  at the top.  When playing  with horizon and
+paratroops  use the paratroops  to gather intelligence from beyond the
+horizon.  When playing with paratroops or artillery, you  can create a
+network of recurrent   connections  near the bases that  will  provide
+mutual protection by  automatically sending men  into any part of  the
+net that is knocked out.   Paratroops are expensive, so  test the  aim
+with artillery (right mouse)  before  launching the paratroops  (shift
+right mouse), although  this  works  only  if  the   -para  and  -guns
+arguments are equal.  When using artillery, have a large contingent of
+infantry  ready to move in immediately  after the  barage.  Paratroops
+and artillery are helpful,  but  it is the grunts  that  must actually
+take the territory.
+
+.SH COMPILATION OPTIONS
+
+Certain other game options or alternatives are allowed at compile time
+by  editing the file  "extern.h" and  setting  certain global flags to
+TRUE or FALSE, before compiling the program.   The flag UNIX should be
+set to FALSE if you will be running  on a non-unix platform.   On unix
+systems the select() function is used to enhance efficiency and reduce
+computer load.  The INVERT flag may be set to FALSE if you do not like
+the appearance of the inverted command vector within the troop square.
+The VARMOUSE option  may be set  to TRUE  if you would like  the mouse
+operations to  be redefined  so    that the left  mouse adds   command
+vectors, and the middle mouse subtracts such vectors.  The  flag PAUSE
+may be set  to FALSE to disable the  ability to  pause and  resume the
+game with control-s  and control-q.  The flag  NORAND48 must be set to
+TRUE  if your  system does not define  drand48() and srand48() in  the
+math library.   The SHOWFLOW  flag in extern.h  may be set to FALSE to
+make the displayed command vectors remain at full length even when the
+troop strength is  zero.  The flag  NEWCOLORMAP can be set to  TRUE to
+create a private color map for the game, useful when the default color
+map is full.  The flag MULTITEXT can be set  to FALSE, whereby instead
+of having  a single  text line   for each player,  two text  lines are
+shared by  all the players.  The flag  MULTIFLUSH can  be set to TRUE,
+whereby command vectors appear immediately after the command is given,
+although performance is noticably impaired.
+
+.SH BUGS
+
+When the  system is slow, there  is a noticable  time lag  between the
+mouse positioning and the  keystroke registration, so that a keystroke
+for a square pointed to by the mouse might be actually recorded in the
+next square the mouse moves to.  Similarly,  a shifted mouse click (as
+for paratroops) might be delayed so that  by the  time it is processed
+the shift key is no longer being depressed, and it  is recorded  as an
+unshifted mouse  click (as  for artillery).  Under such circumstances,
+avoid  issuing  rapid command sequences.   When  playing a remote site
+over the network, there is often  a lag between  the displays, and the
+remote  site  plays  at   a disadvantage.  This  problem   is somewhat
+alleviated by using a slow -speed  value.  When the -disrupt option is
+used, the multiple  clicks required to  press home an  attack  can bog
+down the event queue and lead to slow execution.  The shade "gray2" is
+available, although on  monochrome  monitors  it will  appear the same
+color as the  background,  therefore this is  a "stealth" color.  Some
+systems do  not support the random  functions drand48() and srand48(),
+on such  systems  the  flag  NODRAND48  should    be  set to   TRUE in
+externals.h before compilation.  When installing xbattle on a NON-unix
+system, the flag UNIX must be set to FALSE in the  file externals.h to
+prevent the use of the  unix select() function,  which will  result in
+greater  computer load.  Occasionally   an "invisible"  sea  square is
+generated, into which troops  cannot be moved.   The options file does
+not  accept the team  color  /  display combination.    When a {player
+specific  option} is   followed by a universal  option,  the former is
+overwritten  by  the latter,  so  the  {player specific option} should
+always follow   the  universal option.   The   "-hex" option  will not
+support the "-horizon" and "-wrap" options simultaneously.
+
+
+.SH AUTHORS
+
+Steve  Lehar, Boston University (slehar@park.bu.edu) and   Greg Lesher
+(lesher@park.bu.edu), and  some   sections  of code  from  Mark  Lauer
+(elric@basser.cs.su.oz.au).  Helpful suggestions,  bug    reports, and
+ideas were gratefully received  from numerous contributors   from  all
+over the world.

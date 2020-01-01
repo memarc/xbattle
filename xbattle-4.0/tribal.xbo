@@ -1,0 +1,11 @@
+-decay 2
+-sea 8
+-square 32
+-board 24
+-farms 7
+-militia 10
+-repeat
+-fill 4
+-dig 4
+-area
+-attack

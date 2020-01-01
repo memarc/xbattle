@@ -1,0 +1,9 @@
+# @(#)Imakefile 10/1/91
+# Imakefile - xbattle
+LOCAL_LIBRARIES = $(XLIB)
+  SYS_LIBRARIES = -lm
+           SRCS = main.c init.c parse.c update.c utils.c draw.c
+           OBJS = main.o init.o parse.o update.o utils.o draw.o
+
+ComplexProgramTarget(xbattle)
+

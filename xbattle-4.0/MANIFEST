@@ -1,0 +1,20 @@
+   File Name		Archive #	Description
+-----------------------------------------------------------
+ Imakefile                  1	
+ MANIFEST                   1	This shipping list
+ README                     1	
+ default.xbo                1	
+ draw.c                     4	
+ extern.h                   4	
+ global.h                   5	
+ init.c                     5	
+ main.c                     2	
+ parse.c                    6	
+ patchlevel.h               2	
+ skirmish.xbo               1	
+ tribal.xbo                 2	
+ tutorial1                  7	
+ tutorial2                  6	
+ update.c                   1	
+ utils.c                    7	
+ xbattle.man                3	
